@@ -6716,6 +6716,11 @@ jsprim@^1.2.2:
     array-includes "^3.1.2"
     object.assign "^4.1.2"
 
+keydrown@^1.2.8:
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/keydrown/-/keydrown-1.2.8.tgz#c821b3b7f89f4dcffc61f37a10043fb7e530815e"
+  integrity sha512-F7A4pooqeAk0UmVmkGyTALp8DBQdgw9Pd3FVK4+9gYzHaB2ybxmH5hvyrpGk/VEL6f8VCGRcq9ST3cIdOD4hKw==
+
 killable@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/killable/-/killable-1.0.1.tgz#4c8ce441187a061c7474fb87ca08e2a638194892"
