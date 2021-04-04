@@ -57,11 +57,14 @@ export default function Board() {
   });
 
   function randomPos(reason = null) {
-    let pos = Math.ceil(Math.random() * (BOARD_SIZE ** 2 - 1));
+    let pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
+    while (pos === 0) {
+      pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
+    }
     if (reason != null) {
       const shnake = [...snake];
-      while (shnake.includes(pos)) {
-        pos = Math.ceil(Math.random() * (BOARD_SIZE ** 2 - 1));
+      while (shnake.includes(pos) || pos === 0) {
+        pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
       }
     }
     return pos;
