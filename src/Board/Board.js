@@ -82,7 +82,6 @@ export default function Board() {
   function moveSnake(pos) {
     if (game === "playing") {
       let coord = snake[0];
-
       if (pos === "right") {
         if (coord % BOARD_SIZE === 0) {
           setGame("end");
@@ -93,7 +92,6 @@ export default function Board() {
           coord++;
         }
       }
-
       else if (pos === "left") {
         if (coord % BOARD_SIZE === 1) {
           setGame("end");
@@ -104,7 +102,6 @@ export default function Board() {
           coord--;
         }
       }
-
       else if (pos === "up") {
         if (coord <= BOARD_SIZE) {
           setGame("end");
@@ -115,7 +112,6 @@ export default function Board() {
           coord -= BOARD_SIZE;
         }
       }
-
       else {
         if (coord >= (BOARD_SIZE * (BOARD_SIZE - 1) + 1)) {
           setGame("end");
@@ -126,14 +122,13 @@ export default function Board() {
           coord += BOARD_SIZE;
         }
       }
-      
       if (coord >= 1 || coord <= (BOARD_SIZE ** 2)) {
         if (coord === foodCell) {
           const newSnake = [...snake];
-          setFoodCell(randomPos("eat"));
           setScore(score + 1);
           newSnake.unshift(coord);
           setSnake(newSnake);
+          setFoodCell(randomPos("eat"));
         }
         else {
           if (snake.includes(coord)) {
