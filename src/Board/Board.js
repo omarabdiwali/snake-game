@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../Board/Board.css';
 
 function useInterval(callback, delay) {
@@ -37,25 +37,24 @@ export default function Board() {
     moveSnake(direction);
   }, 125);
 
-  // useEffect(() => {
-  //   window.addEventListener("keydown", getKey);
-  //   return () => {
-  //     window.addEventListener("keydown", getKey);
-  //   }
-  // }, [getKey]);
-
-  const getKey = e => {
-    console.log("first");
-      if (e.key == "ArrowDown" && (direction !== "up" || snake.length == 1)) {
+  window.addEventListener('keydown', (e) => {
+    switch (e.key) {
+      case "ArrowDown":
         setDirection("down");
-      } else if (e.key == "ArrowUp" && (direction !== "down" || snake.length == 1)) {
-        setDirection("up")
-      } else if (e.key == "ArrowRight" && (direction !== "left" || snake.length == 1)) {
+        break;
+      case "ArrowUp":
+        setDirection("up");
+        break;
+      case "ArrowRight":
         setDirection("right");
-      } else if (e.key == "ArrowLeft" && (direction !== "right" || snake.length == 1)) {
+        break;
+      case "ArrowLeft":
         setDirection("left");
-      }
+        break;
+      default:
+        break;
     }
+  });
 
   function randomPos(reason = null) {
     let pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
@@ -151,7 +150,7 @@ export default function Board() {
   }
 
   return (
-    <div tabIndex="0" onKeyDown={getKey}>
+    <>
       <h3 style={{ fontFamily: "Didot, serif" }}>Score: {score}</h3>
       <div>
         {game === "end" ? <button onClick={start}>New Game</button> : ""}
@@ -168,6 +167,6 @@ export default function Board() {
           )
         })}
       </div>
-    </div>
+    </>
   )
 }
