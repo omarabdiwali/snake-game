@@ -151,7 +151,7 @@ export default function Board() {
   }
 
   return (
-    <div tabIndex={-1} onKeyDown={getKey}>
+    <div tabIndex="0" onKeyDown={getKey}>
       <h3 style={{ fontFamily: "Didot, serif" }}>Score: {score}</h3>
       <div>
         {game === "end" ? <button onClick={start}>New Game</button> : ""}
