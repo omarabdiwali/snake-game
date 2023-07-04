@@ -45,6 +45,7 @@ export default function Board() {
   // }, [getKey]);
 
   const getKey = e => {
+    console.log("first");
       if (e.key == "ArrowDown" && (direction !== "up" || snake.length == 1)) {
         setDirection("down");
       } else if (e.key == "ArrowUp" && (direction !== "down" || snake.length == 1)) {
