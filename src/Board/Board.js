@@ -40,15 +40,19 @@ export default function Board() {
   window.addEventListener('keydown', (e) => {
     switch (e.key) {
       case "ArrowDown":
+        if (direction == "up" && snake.length > 1) break;
         setDirection("down");
         break;
       case "ArrowUp":
+        if (direction == "down" && snake.length > 1) break;
         setDirection("up");
         break;
       case "ArrowRight":
+        if (direction == "left" && snake.length > 1) break;
         setDirection("right");
         break;
       case "ArrowLeft":
+        if (direction == "right" && snake.length > 1) break;
         setDirection("left");
         break;
       default:
