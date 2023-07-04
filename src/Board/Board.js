@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import '../Board/Board.css';
 
 function useInterval(callback, delay) {
@@ -37,28 +37,24 @@ export default function Board() {
     moveSnake(direction);
   }, 125);
 
-  window.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case "ArrowDown":
-        if (direction == "up" && snake.length > 1) break;
+  // useEffect(() => {
+  //   window.addEventListener("keydown", getKey);
+  //   return () => {
+  //     window.addEventListener("keydown", getKey);
+  //   }
+  // }, [getKey]);
+
+  const getKey = e => {
+      if (e.key == "ArrowDown" && (direction !== "up" || snake.length == 1)) {
         setDirection("down");
-        break;
-      case "ArrowUp":
-        if (direction == "down" && snake.length > 1) break;
-        setDirection("up");
-        break;
-      case "ArrowRight":
-        if (direction == "left" && snake.length > 1) break;
+      } else if (e.key == "ArrowUp" && (direction !== "down" || snake.length == 1)) {
+        setDirection("up")
+      } else if (e.key == "ArrowRight" && (direction !== "left" || snake.length == 1)) {
         setDirection("right");
-        break;
-      case "ArrowLeft":
-        if (direction == "right" && snake.length > 1) break;
+      } else if (e.key == "ArrowLeft" && (direction !== "right" || snake.length == 1)) {
         setDirection("left");
-        break;
-      default:
-        break;
+      }
     }
-  });
 
   function randomPos(reason = null) {
     let pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
@@ -154,7 +150,7 @@ export default function Board() {
   }
 
   return (
-    <>
+    <div onKeyDown={getKey}>
       <h3 style={{ fontFamily: "Didot, serif" }}>Score: {score}</h3>
       <div>
         {game === "end" ? <button onClick={start}>New Game</button> : ""}
@@ -171,6 +167,6 @@ export default function Board() {
           )
         })}
       </div>
-    </>
+    </div>
   )
 }
