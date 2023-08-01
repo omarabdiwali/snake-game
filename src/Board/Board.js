@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import '../Board/Board.css';
 
 function useInterval(callback, delay) {
@@ -37,24 +37,51 @@ export default function Board() {
     moveSnake(direction);
   }, 125);
 
-  window.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case "ArrowDown":
+  const movement = useCallback(e => {
+    if (e.key == "ArrowDown") {
+      if (direction !== "up" || snake.length == 1) {
         setDirection("down");
-        break;
-      case "ArrowUp":
+      }
+    } else if (e.key == "ArrowUp") {
+      if (direction !== "down" || snake.length == 1) {
         setDirection("up");
-        break;
-      case "ArrowRight":
+      }
+    } else if (e.key == "ArrowRight") {
+      if (direction !== "left" || snake.length == 1) {
         setDirection("right");
-        break;
-      case "ArrowLeft":
+      }
+    } else if (e.key == "ArrowLeft") {
+      if (direction !== "right" || snake.length == 1) {
         setDirection("left");
-        break;
-      default:
-        break;
+      }
     }
-  });
+  }, [direction, snake]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', movement);
+    return () => {
+      window.removeEventListener('keydown', movement);
+    }
+  }, [movement]);
+
+  // window.addEventListener('keydown', (e) => {
+  //   switch (e.key) {
+  //     case "ArrowDown":
+  //       setDirection("down");
+  //       break;
+  //     case "ArrowUp":
+  //       setDirection("up");
+  //       break;
+  //     case "ArrowRight":
+  //       setDirection("right");
+  //       break;
+  //     case "ArrowLeft":
+  //       setDirection("left");
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // });
 
   function randomPos(reason = null) {
     let pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
