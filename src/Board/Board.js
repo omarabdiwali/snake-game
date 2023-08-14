@@ -64,25 +64,6 @@ export default function Board() {
     }
   }, [movement]);
 
-  // window.addEventListener('keydown', (e) => {
-  //   switch (e.key) {
-  //     case "ArrowDown":
-  //       setDirection("down");
-  //       break;
-  //     case "ArrowUp":
-  //       setDirection("up");
-  //       break;
-  //     case "ArrowRight":
-  //       setDirection("right");
-  //       break;
-  //     case "ArrowLeft":
-  //       setDirection("left");
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  // });
-
   function randomPos(reason = null) {
     let pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
     while (pos === 0) {
@@ -106,7 +87,7 @@ export default function Board() {
     setDirection(rand < 120 ? "down" : "up");
   }
 
-  function moveSnake(pos) {
+  const moveSnake = useCallback(pos => {
     if (game === "playing") {
       let coord = snake[0];
       if (pos === "right") {
@@ -174,7 +155,7 @@ export default function Board() {
         }
       }
     }
-  }
+  }, [pos, game, snake, foodCell, direction])
 
   return (
     <>
