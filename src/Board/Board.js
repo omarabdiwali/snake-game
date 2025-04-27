@@ -1,6 +1,21 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import '../Board/Board.css';
 
+const BOARD_SIZE = 15;
+const DIRECTIONS = {
+  up: -BOARD_SIZE,
+  down: BOARD_SIZE,
+  left: -1,
+  right: 1,
+};
+const OPPOSITE_DIRECTIONS = {
+  up: 'down',
+  down: 'up',
+  left: 'right',
+  right: 'left',
+};
+
+// Custom hook for interval
 function useInterval(callback, delay) {
   const savedCallback = useRef();
 
@@ -9,193 +24,120 @@ function useInterval(callback, delay) {
   }, [callback]);
 
   useEffect(() => {
-    function tick() {
-      savedCallback.current();
-    }
+    let id;
     if (delay !== null) {
-      let id = setInterval(tick, delay);
-      return () => clearInterval(id);
+      id = setInterval(() => savedCallback.current(), delay);
     }
+    return () => clearInterval(id);
   }, [delay]);
 }
 
 export default function Board() {
-  const BOARD_SIZE = 15;
-  const rand = Math.floor(Math.random() * (15 * 15));
-  const board = [];
-  for (let index = 1; index <= BOARD_SIZE; index++) {
-    board.push(index);
-  }
-  const squares = board.map(_ => board);
-  const [snake, setSnake] = useState([rand]);
+  const [snake, setSnake] = useState([Math.floor(Math.random() * (BOARD_SIZE ** 2)) + 1]);
   const [score, setScore] = useState(0);
-  const [game, setGame] = useState("playing");
-  const [direction, setDirection] = useState(rand < 120 ? "down" : "up");
-  const [prevDir, setPrevDir] = useState(rand < 120 ? "down" : "up");
-  const [interv, setInterv] = useState();
+  const [gameStatus, setGameStatus] = useState('playing');
+  const [direction, setDirection] = useState('down');
+  const [foodPosition, setFoodPosition] = useState(generateRandomPosition(snake));
 
-  const randomPos = useCallback((reason = null) => {
-    let pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
-    while (pos === 0) {
-      pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
+  // Handle snake movement
+  const moveSnake = useCallback(() => {
+    if (gameStatus !== 'playing') return;
+
+    const newPosition = snake[0] + DIRECTIONS[direction];
+    if (isGameOver(newPosition, snake, direction)) {
+      setGameStatus('end');
+      return;
     }
-    if (reason != null) {
-      const shnake = [...snake];
-      while (shnake.includes(pos) || pos === 0) {
-        pos = Math.round(Math.random() * (BOARD_SIZE ** 2));
-      }
+
+    if (newPosition === foodPosition) {
+      setScore(score + 1);
+      setFoodPosition(generateRandomPosition(snake));
+      setSnake([newPosition, ...snake]);
+    } else {
+      setSnake([newPosition, ...snake.slice(0, -1)]);
     }
-    return pos;
-  }, [snake])
+  }, [snake, direction, gameStatus, foodPosition, score]);
 
-  const [foodCell, setFoodCell] = useState(randomPos());
+  useInterval(moveSnake, 100);
 
-  useInterval(() => {
-    moveSnake();
-  }, 123);
+  // Handle keyboard input
+  const handleKeyDown = useCallback((e) => {
+    const newDirection = {
+      ArrowUp: 'up',
+      ArrowDown: 'down',
+      ArrowLeft: 'left',
+      ArrowRight: 'right',
+    }[e.key];
 
-  const movement = useCallback(e => {
-    if (e.key === "ArrowDown") {
-      if (direction !== "up" || snake.length === 1) {
-        setDirection("down");
-      }
-    } else if (e.key === "ArrowUp") {
-      if (direction !== "down" || snake.length === 1) {
-        setDirection("up");
-      }
-    } else if (e.key === "ArrowRight") {
-      if (direction !== "left" || snake.length === 1) {
-        setDirection("right");
-      }
-    } else if (e.key === "ArrowLeft") {
-      if (direction !== "right" || snake.length === 1) {
-        setDirection("left");
-      }
+    if (!newDirection || (snake.length > 1 && isOppositeDirection(newDirection, direction))) {
+      return;
     }
+
+    setDirection(newDirection);
   }, [direction, snake]);
 
   useEffect(() => {
-    window.addEventListener('keydown', movement);
-    return () => {
-      window.removeEventListener('keydown', movement);
-    }
-  }, [movement]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyDown]);
 
-  function start() {
-    const rand = randomPos();
-    setSnake([rand]);
-    setFoodCell(randomPos("eat"));
+  // Reset game
+  const resetGame = () => {
+    const initialSnakePosition = Math.floor(Math.random() * (BOARD_SIZE ** 2)) + 1;
+    const middle = BOARD_SIZE ** 2 / 2;
+    setSnake([initialSnakePosition]);
+    setFoodPosition(generateRandomPosition([initialSnakePosition]));
     setScore(0);
-    setGame("playing");
-    setDirection(rand < 120 ? "down" : "up");
-  }
-
-  const moveSnake = useCallback((shnake = null) => {
-    if (interv === false && shnake === null) return;
-
-    let pos = direction;
-    let sanke = JSON.parse(JSON.stringify(snake));
-
-    if (shnake) {
-      sanke = shnake;
-    }
-
-    if (game === "playing") {
-      let coord = sanke[0];
-      if (pos === "right") {
-        if (coord % BOARD_SIZE === 0) {
-          setGame("end");
-          return;
-        }
-        else {
-          setDirection("right");
-          coord++;
-        }
-      }
-      else if (pos === "left") {
-        if (coord % BOARD_SIZE === 1) {
-          setGame("end");
-          return;
-        }
-        else {
-          setDirection("left");
-          coord--;
-        }
-      }
-      else if (pos === "up") {
-        if (coord <= BOARD_SIZE) {
-          setGame("end");
-          return;
-        }
-        else {
-          setDirection("up");
-          coord -= BOARD_SIZE;
-        }
-      }
-      else {
-        if (coord >= (BOARD_SIZE * (BOARD_SIZE - 1) + 1)) {
-          setGame("end");
-          return;
-        }
-        else {
-          setDirection("down");
-          coord += BOARD_SIZE;
-        }
-      }
-      if (coord >= 1 || coord <= (BOARD_SIZE ** 2)) {
-        if (coord === foodCell) {
-          const newSnake = [...sanke];
-          setScore(score + 1);
-          newSnake.unshift(coord);
-          setSnake(newSnake);
-          setFoodCell(randomPos("eat"));
-        }
-        else {
-          if (sanke.includes(coord)) {
-            setGame("end");
-            return;
-          }
-          const newSnake = [...sanke];
-          if (newSnake.length === 1) {
-            setSnake([coord]);
-          }
-          else {
-            newSnake.unshift(coord);
-            newSnake.pop();
-            setSnake(newSnake);
-          }
-        }
-      }
-    }
-  }, [game, snake, interv, direction, foodCell, randomPos, score])
-
-  useEffect(() => {
-    if (direction !== prevDir) {
-      setInterv(false);
-      moveSnake(snake);
-      setPrevDir(direction);
-      setInterv(true);
-    }
-  }, [prevDir, direction, snake, moveSnake])
+    setGameStatus('playing');
+    setDirection(initialSnakePosition > middle ? 'up' : 'down');
+  };
 
   return (
     <>
       <h3 style={{ fontFamily: "Didot, serif" }}>Score: {score}</h3>
+      {gameStatus === 'end' ? <button className="reset" onClick={resetGame}>New Game</button> : <div className='reset'></div>}
       <div>
-        {game === "end" ? <button onClick={start}>New Game</button> : ""}
-        {squares.map((row, idx) => {
-          return (
-            <div className="row" key={idx}>
-              {row.map((cell, id) => {
-                const pos = idx * BOARD_SIZE + cell;
-                return (
-                  <div className="cell" key={pos} id={snake.includes(pos) ? "snake" : pos === foodCell ? "food" : ""}></div>
-                )
-              })}
-            </div>
-          )
-        })}
+        {[...Array(BOARD_SIZE)].map((_, rowIndex) => (
+          <div className="row" key={rowIndex}>
+            {[...Array(BOARD_SIZE)].map((_, columnIndex) => {
+              const position = rowIndex * BOARD_SIZE + columnIndex + 1;
+              return (
+                <div
+                  className="cell"
+                  key={position}
+                  id={
+                    snake.includes(position)
+                      ? 'snake'
+                      : position === foodPosition
+                      ? 'food'
+                      : ''
+                  }
+                ></div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </>
-  )
+  );
+}
+
+// Helper functions
+function generateRandomPosition(snake) {
+  let position;
+  do {
+    position = Math.floor(Math.random() * (BOARD_SIZE ** 2)) + 1;
+  } while (snake.includes(position));
+  return position;
+}
+
+function isGameOver(position, snake, direction) {
+  if (position <= 0 || position > BOARD_SIZE ** 2) return true;
+  if (snake.includes(position)) return true;
+  if ((position % BOARD_SIZE === 0 && direction === 'left') || (position % BOARD_SIZE === 1 && direction === 'right')) return true;
+  return false;
+}
+
+function isOppositeDirection(newDir, currentDir) {
+  return OPPOSITE_DIRECTIONS[newDir] === currentDir;
 }

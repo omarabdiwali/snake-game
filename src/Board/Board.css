@@ -16,3 +16,9 @@
 #food {
     background-color: red;
 }
+
+.reset {
+    width: 450px;
+    margin-bottom: 10px;
+    height: 20px;
+}
