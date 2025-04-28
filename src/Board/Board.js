@@ -34,10 +34,12 @@ function useInterval(callback, delay) {
 
 export default function Board() {
   const initialPosition = Math.floor(Math.random() * (BOARD_SIZE ** 2)) + 1;
+  const MIDDLE = BOARD_SIZE ** 2 / 2;
+
   const [snake, setSnake] = useState([initialPosition]);
   const [score, setScore] = useState(0);
   const [gameStatus, setGameStatus] = useState('playing');
-  const [direction, setDirection] = useState(initialPosition > middle ? 'up' : 'down');
+  const [direction, setDirection] = useState(initialPosition > MIDDLE ? 'up' : 'down');
   const [foodPosition, setFoodPosition] = useState(generateRandomPosition(snake));
 
   // Handle snake movement
@@ -85,12 +87,11 @@ export default function Board() {
   // Reset game
   const resetGame = () => {
     const initialSnakePosition = Math.floor(Math.random() * (BOARD_SIZE ** 2)) + 1;
-    const middle = BOARD_SIZE ** 2 / 2;
     setSnake([initialSnakePosition]);
     setFoodPosition(generateRandomPosition([initialSnakePosition]));
     setScore(0);
     setGameStatus('playing');
-    setDirection(initialSnakePosition > middle ? 'up' : 'down');
+    setDirection(initialSnakePosition > MIDDLE ? 'up' : 'down');
   };
 
   return (
